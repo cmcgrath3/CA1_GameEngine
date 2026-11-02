@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - Key
+  - Door
+  - Collectable
   layers:
   - Default
   - TransparentFX
@@ -12,9 +15,9 @@ TagManager:
   - 
   - Water
   - UI
+  - Player
+  - Projectile
   - CameraConfiner
-  - 
-  - 
   - 
   - 
   - 

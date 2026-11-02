@@ -36,7 +36,7 @@ public class Collectable : MonoBehaviour
         
         if(collision.gameObject.tag == "Player" && this.gameObject.tag == "Collectable")
         {
-            player.CollectObject();
+            player.CollectItem();
             Destroy(this.gameObject);
         }
     }

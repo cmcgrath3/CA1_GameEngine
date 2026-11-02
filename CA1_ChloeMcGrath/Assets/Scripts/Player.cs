@@ -14,9 +14,11 @@ public class Player : MonoBehaviour
     private Animator animator;
 
     private bool hasKey = false;
-    private int objectsCollected = 0;
+    private int score = 0;
 
     [SerializeField] private GameObject projectile;
+
+    [SerializeField] private UIManager ui;
 
     void Start()
     {
@@ -26,7 +28,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        // Movement
+        // Move
         move = InputSystem.actions["Move"].ReadValue<Vector2>();
 
         if(move.x != 0)
@@ -67,14 +69,16 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Reset jump count when the player touches the ground
         if(collision.gameObject.tag == "Ground")
         {
-            jumpCount = 0; // Reset jump count when the player touches the ground
+            jumpCount = 0;
         }
 
+        // Delete door from scene when the player collects the key
         if(collision.gameObject.tag == "Door" && hasKey == true)
         {
-            Destroy(collision.gameObject);
+            Destroy(collision.gameObject); 
         }
     }
 
@@ -83,8 +87,12 @@ public class Player : MonoBehaviour
         hasKey = true;
     }
 
-    public void CollectObject()
+    public void CollectItem()
     {
-        objectsCollected += 1;
+        // Increase the score
+        score++;
+
+        // Call the SetScore function in the UIManager script
+        ui.SetScore(score);
     }
 }

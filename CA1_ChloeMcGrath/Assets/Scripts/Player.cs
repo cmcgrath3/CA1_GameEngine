@@ -3,11 +3,13 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    [SerializeField] private float JumpHeight = 2.4f;
+    [SerializeField] private GameObject projectile;
+    [SerializeField] private UIManager ui;
+    
     private int direction = 1;
     public float speed;
     private Vector2 move;
-
-    [SerializeField] private float JumpHeight = 2.4f;
     private int jumpCount = 0;
 
     private Rigidbody2D rb;
@@ -15,10 +17,7 @@ public class Player : MonoBehaviour
 
     private bool hasKey = false;
     private int score = 0;
-
-    [SerializeField] private GameObject projectile;
-
-    [SerializeField] private UIManager ui;
+    private int lives = 3;
 
     void Start()
     {
@@ -74,7 +73,11 @@ public class Player : MonoBehaviour
         {
             jumpCount = 0;
         }
-
+        else if(collision.gameObject.tag == "EnemyProjectile")
+        {
+            rb.linearVelocity = Vector2.zero;
+            PlayerHit();
+        }
         // Delete door from scene when the player collects the key
         if(collision.gameObject.tag == "Door" && hasKey == true)
         {
@@ -94,5 +97,11 @@ public class Player : MonoBehaviour
 
         // Call the SetScore function in the UIManager script
         ui.SetScore(score);
+    }
+
+    private void PlayerHit()
+    {
+        lives--;
+        this.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
     }
 }

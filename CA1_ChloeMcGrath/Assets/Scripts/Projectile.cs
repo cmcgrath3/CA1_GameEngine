@@ -7,7 +7,7 @@ public class Projectile : MonoBehaviour
 
     void Awake()
     {
-        rb=GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public void Launch(Vector2 direction, float force)
@@ -21,8 +21,9 @@ public class Projectile : MonoBehaviour
         {
             Player p = gameObject.GetComponent<Player>();
             Vector2 pos = rb.transform.position;
-            pos.x += other.gameObject.GetComponent<RectTransform>().sizeDelta.x * direction.x;
+            //pos.x += other.gameObject.GetComponent<RectTransform>().sizeDelta.x * direction.x;
             rb.transform.position = pos;   
+            Destroy(this.gameObject);
         }
         else
         {

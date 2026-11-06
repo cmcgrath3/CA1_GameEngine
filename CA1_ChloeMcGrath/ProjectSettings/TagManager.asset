@@ -14,13 +14,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - CameraConfiner
   - Water
   - UI
   - Player
   - Projectile
-  - CameraConfiner
   - Enemy
+  - EnemyProjectile
   - 
   - 
   - 

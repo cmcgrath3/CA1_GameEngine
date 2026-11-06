@@ -15,14 +15,22 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
 
-    private bool hasKey = false;
     private int score = 0;
+    private bool hasKey = false;
+
+    private int xp = 0;
     private int lives = 3;
+    private Vector2 lastCheckpoint;
+    private float invincibilityTime = 3.0f;
+    private float invincibilityCount = 0f;
+    public bool isInvin = false;
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        lastCheckpoint = rb.transform.position;
     }
 
     void Update()
@@ -56,6 +64,17 @@ public class Player : MonoBehaviour
             Projectile pro = sb.GetComponent<Projectile>();
             pro.Launch(new Vector2(direction, 0), 300);
         }
+
+        if(isInvin == true)
+        {
+            invincibilityCount += Time.deltaTime;
+            if(invincibilityCount > invincibilityTime)
+            {
+                isInvin = false;
+                invincibilityCount = 0;
+                this.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+            }
+        }
     }
 
     void FixedUpdate()
@@ -68,19 +87,26 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Reset jump count when the player touches the ground
         if(collision.gameObject.tag == "Ground")
         {
+            // Reset jump count when the player touches the ground
             jumpCount = 0;
         }
-        else if(collision.gameObject.tag == "EnemyProjectile")
+        else if(collision.gameObject.tag == "EnemyProjectile" && isInvin == false)
         {
+            // Push player backwards when hit
             rb.linearVelocity = Vector2.zero;
             PlayerHit();
         }
-        // Delete door from scene when the player collects the key
+        else if(collision.gameObject.tag == "EnemyProjectile" && isInvin == true)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+        
+        
         if(collision.gameObject.tag == "Door" && hasKey == true)
         {
+            // Delete door from scene when the player collects the key
             Destroy(collision.gameObject); 
         }
     }
@@ -102,6 +128,25 @@ public class Player : MonoBehaviour
     private void PlayerHit()
     {
         lives--;
+        
+        // Send player back to checkpoint
+        rb.transform.position = lastCheckpoint;
+
+        isInvin = true;
+
+        // Player fades when hit
         this.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
+    }
+
+    public void LevelUp()
+    {
+        // Increase XP
+        xp++;
+        
+        // Increase the player's speed when they defeat a certain number of enemies
+        if(xp >= 2)
+        {
+            speed *= 2;
+        }
     }
 }

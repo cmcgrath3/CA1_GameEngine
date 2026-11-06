@@ -4,8 +4,10 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private float moveTime;
     [SerializeField] private float idleTime;
-    [SerializeField] private float fireTime;
+    [SerializeField] private float fireTime = 0.5f;
     [SerializeField] private GameObject projectile;
+
+    [SerializeField] private Player player;
 
     private Rigidbody2D rb;
     private Animator animator;
@@ -15,6 +17,7 @@ public class Enemy : MonoBehaviour
     private bool isMoving = false;
 
     private float fireCountdown;
+    private int strength = 3;
 
     void Start()
     {
@@ -51,7 +54,10 @@ public class Enemy : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Looks 5 units away for Player
         RaycastHit2D hit = Physics2D.Raycast(rb.transform.position, new Vector2(direction, 0), 5f, LayerMask.GetMask("Player"));
+        
+        // Check if Raycast has collided with Player
         if(hit.collider != null)
         {
             if(hit.collider.GetComponent<Player>() != null)
@@ -71,6 +77,32 @@ public class Enemy : MonoBehaviour
             pro.Launch(new Vector2(direction, 0), 300);
             fireCountdown = 0;
         }
-        
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.GetComponent<Projectile>() != null)
+        {
+            rb.linearVelocity = new Vector2(0, 0);
+            Hit();
+        }
+    }
+
+    private void Hit()
+    {
+        strength--;
+
+        if(strength <= 0)
+        {
+            // Call LevelUp function from Player script
+            player.LevelUp();
+
+            // Destroy the Enemy from the scene
+            Destroy(this.gameObject);
+            return;
+        }
+
+        // Enemy fades when hit
+        this.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
     }
 }

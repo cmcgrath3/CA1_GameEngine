@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -10,15 +11,19 @@ public class Player : MonoBehaviour
     private int direction = 1;
     public float speed;
     private Vector2 move;
+
     private int jumpCount = 0;
+    private bool wallJump = false;
+    private int wallJumpDirection = 5;
 
     private Rigidbody2D rb;
     private Animator animator;
 
     private int score = 0;
     private bool hasKey = false;
-
     private int xp = 0;
+    public int level = 1;
+
     private int lives = 3;
     private Vector2 lastCheckpoint;
     private float invincibilityTime = 3.0f;
@@ -46,11 +51,23 @@ public class Player : MonoBehaviour
         }
 
         // Jump
-        if(InputSystem.actions["Jump"].IsPressed() && jumpCount <= 2)
+        if(InputSystem.actions["Jump"].IsPressed() && jumpCount <= 2 && wallJump == false)
         {
             InputSystem.actions["Jump"].Reset();
             rb.linearVelocity = new Vector2(0,0);
             rb.AddForce(new Vector2(0, Mathf.Sqrt(-2*Physics.gravity.y * JumpHeight)), ForceMode2D.Impulse);
+            jumpCount++;
+        }
+        else if(InputSystem.actions["Jump"].IsPressed() && wallJump == true)
+        {
+            InputSystem.actions["Jump"].Reset();
+
+            // Flip the direction the player is facing and the x direction of the jump
+            direction *= -1;
+            wallJumpDirection *= -1;
+            
+            rb.linearVelocity = new Vector2(0,0);
+            rb.AddForce(new Vector2(wallJumpDirection, Mathf.Sqrt(-2*Physics.gravity.y * JumpHeight)), ForceMode2D.Impulse);
             jumpCount++;
         }
 
@@ -60,11 +77,14 @@ public class Player : MonoBehaviour
         if(InputSystem.actions["Attack"].IsPressed())
         {
             InputSystem.actions["Attack"].Reset();
+
+            // Draw a new Projectile
             GameObject sb = Instantiate(projectile, rb.position + new Vector2(0,1.5f), Quaternion.identity);
             Projectile pro = sb.GetComponent<Projectile>();
             pro.Launch(new Vector2(direction, 0), 300);
         }
 
+        // Remove invincibility after a certain period of time
         if(isInvin == true)
         {
             invincibilityCount += Time.deltaTime;
@@ -89,12 +109,16 @@ public class Player : MonoBehaviour
     {
         if(collision.gameObject.tag == "Ground")
         {
-            // Reset jump count when the player touches the ground
             jumpCount = 0;
+            wallJump = false;
+        }
+        else if(collision.gameObject.tag == "Wall") 
+        {
+            jumpCount = 0;
+            wallJump = true;
         }
         else if(collision.gameObject.tag == "EnemyProjectile" && isInvin == false)
         {
-            // Push player backwards when hit
             rb.linearVelocity = Vector2.zero;
             PlayerHit();
         }
@@ -102,12 +126,14 @@ public class Player : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero;
         }
-        
-        
-        if(collision.gameObject.tag == "Door" && hasKey == true)
+        else if(collision.gameObject.tag == "Door" && hasKey == true)
         {
-            // Delete door from scene when the player collects the key
             Destroy(collision.gameObject); 
+        }
+        else if(collision.gameObject.tag == "OutsideLevel")
+        {
+            UpdateLives();
+            rb.transform.position = lastCheckpoint;
         }
     }
 
@@ -118,34 +144,42 @@ public class Player : MonoBehaviour
 
     public void CollectItem()
     {
-        // Increase the score
         score++;
-
-        // Call the SetScore function in the UIManager script
         ui.SetScore(score);
     }
 
     private void PlayerHit()
     {
-        lives--;
-        
-        // Send player back to checkpoint
+        UpdateLives();
+
         rb.transform.position = lastCheckpoint;
-
         isInvin = true;
-
-        // Player fades when hit
         this.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
     }
 
-    public void LevelUp()
+    public void UpdateLives()
+    {
+        lives--;
+        ui.SetLives(lives);
+
+        if(lives == 0)
+        {
+            SceneManager.LoadScene("GameOver");
+        }
+    }
+
+    public void UpdateLevel()
     {
         // Increase XP
         xp++;
         
-        // Increase the player's speed when they defeat a certain number of enemies
-        if(xp >= 2)
+        // Increase the player's level & boost speed when they defeat a certain number of enemies
+        if(xp == 2)
         {
+            // Set the level
+            level++;
+            ui.SetLevel(level);
+            
             speed *= 2;
         }
     }

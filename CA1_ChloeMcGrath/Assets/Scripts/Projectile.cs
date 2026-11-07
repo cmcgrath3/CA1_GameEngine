@@ -21,8 +21,11 @@ public class Projectile : MonoBehaviour
         {
             Player p = gameObject.GetComponent<Player>();
             Vector2 pos = rb.transform.position;
-            //pos.x += other.gameObject.GetComponent<RectTransform>().sizeDelta.x * direction.x;
-            rb.transform.position = pos;   
+            Destroy(this.gameObject);
+        }
+        else if(other.gameObject.tag == "Breakable")
+        {
+            Destroy(other.gameObject);
             Destroy(this.gameObject);
         }
         else

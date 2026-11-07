@@ -144,7 +144,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 6
 --- !u!61 &1205634003734929722
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -207,3 +207,4 @@ MonoBehaviour:
   idleTime: 1
   fireTime: 0.5
   projectile: {fileID: 2752753819498712590, guid: 3df8ebb370fd381468c2e47a2239685b, type: 3}
+  player: {fileID: 0}

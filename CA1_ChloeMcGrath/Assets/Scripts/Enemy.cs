@@ -94,8 +94,8 @@ public class Enemy : MonoBehaviour
 
         if(strength <= 0)
         {
-            // Call LevelUp function from Player script
-            player.LevelUp();
+            // Call the UpdateLevel() method from the Player script
+            player.UpdateLevel();
 
             // Destroy the Enemy from the scene
             Destroy(this.gameObject);

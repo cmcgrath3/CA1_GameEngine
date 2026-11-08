@@ -23,7 +23,7 @@ public class Projectile : MonoBehaviour
             Vector2 pos = rb.transform.position;
             Destroy(this.gameObject);
         }
-        else if(other.gameObject.tag == "Breakable")
+        else if(other.gameObject.tag == "Breakable") // Unseen Mechanic - Breakable Wall
         {
             Destroy(other.gameObject);
             Destroy(this.gameObject);

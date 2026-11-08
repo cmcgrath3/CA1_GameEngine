@@ -28,7 +28,7 @@ public class Collectable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Player" && this.gameObject.tag == "Key")
+        if(collision.gameObject.tag == "Player" && this.gameObject.tag == "Key") // Unseen Mechanic - Key for Door - referenced from collectable code taught in class
         {
             player.AddKey();
             Destroy(this.gameObject);

@@ -72,6 +72,7 @@ public class Player : MonoBehaviour
             direction *= -1;
             wallJumpDirection *= -1;
             
+            // Referenced from Jump mechanic taught in class - x direction changed to move player horizontally
             rb.linearVelocity = new Vector2(0,0);
             rb.AddForce(new Vector2(wallJumpDirection, Mathf.Sqrt(-2*Physics.gravity.y * JumpHeight)), ForceMode2D.Impulse);
             jumpCount++;
@@ -138,12 +139,12 @@ public class Player : MonoBehaviour
         {
             Destroy(collision.gameObject); 
         }
-        else if(collision.gameObject.tag == "OutsideLevel")
+        else if(collision.gameObject.tag == "OutsideLevel") // Unseen Mechanic - Check if outside level
         {
             UpdateLives();
             rb.transform.position = lastCheckpoint;
         }
-        else if(collision.gameObject.tag == "Finish")
+        else if(collision.gameObject.tag == "Finish") // Win Condition - Player reaches outside area
         {
             SceneManager.LoadScene("GameOver");
         }

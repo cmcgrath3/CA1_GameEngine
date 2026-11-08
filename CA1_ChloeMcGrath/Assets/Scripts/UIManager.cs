@@ -16,6 +16,7 @@ public class UIManager : MonoBehaviour
 
     public void SetLevel(int level)
     {
+        // Convert level to String and set as level
         levelText.SetText(level.ToString());
     }
 

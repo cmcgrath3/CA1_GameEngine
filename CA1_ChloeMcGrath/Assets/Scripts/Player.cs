@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float JumpHeight = 2.4f;
     [SerializeField] private GameObject projectile;
     [SerializeField] private UIManager ui;
+    [SerializeField] private AudioClip jumpAudio;
+    [SerializeField] private AudioClip collectAudio;
     
     private int direction = 1;
     public float speed;
@@ -30,11 +32,13 @@ public class Player : MonoBehaviour
     private float invincibilityCount = 0f;
     public bool isInvin = false;
 
+    private AudioSource audio;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        audio = GetComponent<AudioSource>();
         lastCheckpoint = rb.transform.position;
     }
 
@@ -51,14 +55,16 @@ public class Player : MonoBehaviour
         }
 
         // Jump
-        if(InputSystem.actions["Jump"].IsPressed() && jumpCount <= 2 && wallJump == false)
+        if(InputSystem.actions["Jump"].IsPressed() && jumpCount <= 2 && !wallJump)
         {
             InputSystem.actions["Jump"].Reset();
             rb.linearVelocity = new Vector2(0,0);
             rb.AddForce(new Vector2(0, Mathf.Sqrt(-2*Physics.gravity.y * JumpHeight)), ForceMode2D.Impulse);
             jumpCount++;
+
+            audio.PlayOneShot(jumpAudio);
         }
-        else if(InputSystem.actions["Jump"].IsPressed() && wallJump == true)
+        else if(InputSystem.actions["Jump"].IsPressed() && wallJump) // Unseen Mechanic - Wall Jump
         {
             InputSystem.actions["Jump"].Reset();
 
@@ -69,10 +75,12 @@ public class Player : MonoBehaviour
             rb.linearVelocity = new Vector2(0,0);
             rb.AddForce(new Vector2(wallJumpDirection, Mathf.Sqrt(-2*Physics.gravity.y * JumpHeight)), ForceMode2D.Impulse);
             jumpCount++;
+
+            audio.PlayOneShot(jumpAudio);
         }
 
         animator.SetFloat("Move", move.x);
-
+        
         // Attack
         if(InputSystem.actions["Attack"].IsPressed())
         {
@@ -85,7 +93,7 @@ public class Player : MonoBehaviour
         }
 
         // Remove invincibility after a certain period of time
-        if(isInvin == true)
+        if(isInvin)
         {
             invincibilityCount += Time.deltaTime;
             if(invincibilityCount > invincibilityTime)
@@ -112,21 +120,21 @@ public class Player : MonoBehaviour
             jumpCount = 0;
             wallJump = false;
         }
-        else if(collision.gameObject.tag == "Wall") 
+        else if(collision.gameObject.tag == "Wall") // Unseen Mechanic - Wall Jump
         {
             jumpCount = 0;
             wallJump = true;
         }
-        else if(collision.gameObject.tag == "EnemyProjectile" && isInvin == false)
+        else if(collision.gameObject.tag == "EnemyProjectile" && !isInvin)
         {
             rb.linearVelocity = Vector2.zero;
             PlayerHit();
         }
-        else if(collision.gameObject.tag == "EnemyProjectile" && isInvin == true)
+        else if(collision.gameObject.tag == "EnemyProjectile" && isInvin)
         {
             rb.linearVelocity = Vector2.zero;
         }
-        else if(collision.gameObject.tag == "Door" && hasKey == true)
+        else if(collision.gameObject.tag == "Door" && hasKey) // Unseen Mechanic - Unlockable Door
         {
             Destroy(collision.gameObject); 
         }
@@ -135,17 +143,23 @@ public class Player : MonoBehaviour
             UpdateLives();
             rb.transform.position = lastCheckpoint;
         }
+        else if(collision.gameObject.tag == "Finish")
+        {
+            SceneManager.LoadScene("GameOver");
+        }
     }
 
     public void AddKey()
     {
         hasKey = true;
+        audio.PlayOneShot(collectAudio);
     }
 
     public void CollectItem()
     {
         score++;
         ui.SetScore(score);
+        audio.PlayOneShot(collectAudio);
     }
 
     private void PlayerHit()
@@ -168,7 +182,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void UpdateLevel()
+    public void UpdateLevel() // Unseen Mechanic - Levelling Up
     {
         // Increase XP
         xp++;
